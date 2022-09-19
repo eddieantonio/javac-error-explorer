@@ -81,6 +81,7 @@ class Parser:
         self.parsing = True
         self.messages: list[Message] = []
         self.current_comment_lines: list[str] = []
+        self.parsing = True
 
     @property
     def line(self) -> str:
@@ -93,31 +94,31 @@ class Parser:
         return re.sub(r"\\u([0-9a-zA-Z]{4})", unescape_unicode, line)
 
     def parse(self) -> list[Message]:
-        while True:
+        while self.parsing:
             self.item()
-            try:
-                self.next_line()
-            except StopIteration:
-                break
 
         return self.messages
 
-    def next_line(self):
-        self.line_no, self.raw_line = next(self.lines)
+    def next_line(self) -> None:
+        try:
+            self.line_no, self.raw_line = next(self.lines)
+        except StopIteration:
+            self.parsing = False
 
-    def item(self):
+    def item(self) -> None:
         if self.line.startswith("#"):
             self.comment()
         elif self.line == "":
             # Empty line. Clear the current comment.
             self.current_comment_lines = []
+            self.next_line()
         elif self.line[0].isalpha():
             # A message without an annotation
             self.message()
         else:
             raise self.parse_error()
 
-    def comment(self):
+    def comment(self) -> None:
         """
         Parsing either an "annotation":
 
@@ -128,8 +129,9 @@ class Parser:
         # hello
         """
         self.current_comment_lines.append(self.line)
+        self.next_line()
 
-    def message(self):
+    def message(self) -> None:
         """
         Parse a property like:
 
@@ -151,6 +153,8 @@ class Parser:
 
         self.messages.append(Message(name=name, components=self.make_components(value)))
         self.current_comment_lines = []
+        # Note: Do not advance to the next line; the next line might be the
+        # start of another message.
 
     def value(self) -> str:
         """
@@ -191,6 +195,7 @@ class Parser:
                 self.next_line()
             except StopIteration:
                 break
+
         return "".join(value_chunks)
 
     def make_components(self, message_text: str) -> Sequence[str | Placeholder]:
