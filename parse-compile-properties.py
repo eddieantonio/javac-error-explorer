@@ -6,7 +6,7 @@ from pathlib import Path
 from random import sample
 from typing import Sequence
 
-from rich import print  # type: ignore
+from rich import print
 
 HERE = Path(__file__).resolve().parent
 properties_file = HERE / "compiler.properties"
@@ -52,7 +52,10 @@ class Message:
 
 
 class ParseError(Exception):
-    def __init__(self, *, line_no: int, line: str, production: str, message: str):
+    def __init__(
+        self, *, filename: str, line_no: int, line: str, production: str, message: str
+    ):
+        self.filename = filename
         self.line_no = line_no
         self.message = message
         self.production = production
@@ -60,19 +63,19 @@ class ParseError(Exception):
         self.line = line
 
     def __str__(self):
-        filename = properties_file.name
         return (
-            f"{filename}:{self.line_no}: {self.message}\n"
+            f"{self.filename}:{self.line_no}: {self.message}\n"
             "\n"
-            f"  {self.line_no} | {self.line}"
+            f"  {self.line_no} | {self.line}\n"
             "\n"
-            f"(while in {self.production})"
+            f"(while parsing {self.production})"
         )
 
 
 # Parse some messages!
 class Parser:
-    def __init__(self, lines: Sequence[str]):
+    def __init__(self, lines: Sequence[str], *, filename=None):
+        self.filename = filename or "<input>"
         self.lines = enumerate(lines, start=1)
         self.line_no, self.raw_line = next(self.lines)
         self.parsing = True
@@ -89,13 +92,15 @@ class Parser:
 
         return re.sub(r"\\u([0-9a-zA-Z]{4})", unescape_unicode, line)
 
-    def parse(self):
+    def parse(self) -> list[Message]:
         while True:
             self.item()
             try:
                 self.next_line()
             except StopIteration:
                 break
+
+        return self.messages
 
     def next_line(self):
         self.line_no, self.raw_line = next(self.lines)
@@ -110,7 +115,7 @@ class Parser:
             # A message without an annotation
             self.message()
         else:
-            self.parse_error()
+            raise self.parse_error()
 
     def comment(self):
         """
@@ -231,6 +236,7 @@ class Parser:
         """
         name = inspect.stack()[1].function
         return ParseError(
+            filename=self.filename,
             line_no=self.line_no,
             line=self.line,
             production=name,
@@ -300,11 +306,15 @@ def warning(*args, **kwargs):
 
 
 if __name__ == "__main__":
-    p = Parser(properties_text.splitlines())
+    p = Parser(properties_text.splitlines(), filename=properties_file.name)
     p.parse()
-    print("[bold]Showing 10 random messages[/bold]:")
-    for message in sample(p.messages, k=10):
-        print(message.name, message, str(message))
+    print()
+    for message in p.messages:
+        if not message.is_error_message:
+            continue
+        print(f"[bold]{message.name}[/bold]:")
+        for line in str(message).splitlines():
+            print(f"\t{line}")
 
     n_errors = sum(m.is_error_message for m in p.messages)
     total = len(p.messages)
