@@ -1,2 +1,8 @@
+# Caches
 __pycache__/
+
+# Databases
+*.sqlite3
+
+# Editor files
 .vscode/
