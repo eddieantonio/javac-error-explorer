@@ -117,6 +117,7 @@ class Parser:
     For details about the compiler.properties file, consult its own comments:
 
      - https://github.com/openjdk/jdk/blob/master/src/jdk.compiler/share/classes/com/sun/tools/javac/resources/compiler.properties
+     - https://docs.oracle.com/javase/10/docs/api/java/util/Properties.html#load(java.io.Reader)
 
     It's supposed to parseable as an ordinary Java .properties file:
 
@@ -359,6 +360,14 @@ class Parser:
 ###################################### Public API ######################################
 
 
+def parse_messages_from_path(filename: Path) -> Sequence[Message]:
+    """
+    Given a file path, parse the messages from the file.
+    """
+    with filename.open("r", encoding="UTF-8") as properties_file:
+        return parse_messages_from_lines(properties_file, filename=filename.name)
+
+
 def parse_messages_from_lines(lines: Iterable[str], filename=None) -> Sequence[Message]:
     """
     Given a sequence of lines from a file like `compiler.properties`, parses the file
@@ -397,8 +406,6 @@ def parse_annotation(lines: Sequence[str]) -> dict[int, Placeholder]:
         # No placeholder type annotations to be found!
         return {}
 
-    # TODO: add support for annotation comments
-
     # Only the last line has annotations
     annotation_line = lines[-1].removeprefix("#").lstrip()
 
@@ -421,12 +428,23 @@ def parse_annotation(lines: Sequence[str]) -> dict[int, Placeholder]:
             logger.info("does not look like an annotation: %s", annotation_line)
             return {}
 
+        # Extract the type and comment from the description
+        # e.g., string (found version) -> "string", "found version"
+        type_str, paren, comment_str = description.partition("(")
+        if paren == "(":
+            comment = comment_str.rstrip().removesuffix(")")
+        else:
+            comment = None
+        type_str = type_str.strip()
+
         if index in types:
+            # Placeholder declared more than once;
+            # Log it, but override the previous declaration:
             logger.info(
                 "duplicate index %d in annotation line: %s", index, annotation_line
             )
 
-        types[index] = Placeholder(index, description.strip(), None)
+        types[index] = Placeholder(index, type_str, comment)
 
     return types
 
@@ -444,12 +462,9 @@ if __name__ == "__main__":
     properties_path = HERE / "compiler.properties"
     assert properties_path.exists()
 
-    with properties_path.open("r", encoding="UTF-8") as properties_file:
-        messages = parse_messages_from_lines(
-            properties_file, filename=properties_path.name
-        )
-
+    messages = parse_messages_from_path(properties_path)
     print()
+
     for message in messages:
         if not message.is_error_message:
             # Only print error messages.

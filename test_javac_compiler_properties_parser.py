@@ -11,6 +11,8 @@ from javac_compiler_properties_parser import parse_messages_from_lines
 # - a message with a comment, but no placeholder declarations
 # - a message with placeholders, but no placeholder declarations
 # - a message with a UTF-16 escape
+# - placeholders with comments (in parentheses)
+N_EXAMPLES = 8
 EXAMPLE = r"""
 # 0: symbol kind, 1: name, 2: list of type or message segment, 3: list of type or message segment, 4: symbol kind, 5: type, 6: message segment
 compiler.misc.cant.apply.symbol=\
@@ -40,14 +42,19 @@ compiler.misc.bad.const.pool.tag=\
 ## preceded by this string.
 compiler.err.error=\
     error:\u0020
+
+# 0: message segment (feature), 1: string (found version), 2: string (expected version)
+compiler.err.feature.not.supported.in.source=\
+   {0} is not supported in -source {1}\n\
+    (use -source {2} or higher to enable {0})
 """
 
 
 def test_kitchen_sink() -> None:
     messages = parse_messages_from_lines(EXAMPLE.splitlines(), "<example>")
-    assert len(messages) == 7
+    assert len(messages) == N_EXAMPLES
     name_to_message = {m.name: m for m in messages}
-    assert len(name_to_message) == 7
+    assert len(name_to_message) == N_EXAMPLES
 
     # Test the simple message can be converted to a string:
     m = name_to_message["compiler.misc.anonymous"]
@@ -84,3 +91,12 @@ def test_kitchen_sink() -> None:
     # Test a message that does not spill on to the next line (fake)
     m = name_to_message["compile.misc.fake.message"]
     assert str(m) == "syntax error"
+
+    # Test that comments are parsed in the message.
+    m = name_to_message["compiler.err.feature.not.supported.in.source"]
+    assert m.placeholders[0].type_ == "message segment"
+    assert m.placeholders[0].comment == "feature"
+    assert m.placeholders[1].type_ == "string"
+    assert m.placeholders[1].comment == "found version"
+    assert m.placeholders[2].type_ == "string"
+    assert m.placeholders[2].comment == "expected version"
