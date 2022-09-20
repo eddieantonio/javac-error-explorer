@@ -1,6 +1,9 @@
 {% extends "base.html" %}
 
 {% block title %}Rating {{ message.name }} | javac message explorer{% endblock %}
+{% block head %}
+  <script src="{{ url_for('static', filename="rate.js") }}"></script>
+{% endblock %}
 
 {% block main %}
 
@@ -20,7 +23,7 @@
   {%- endfor -%}
   </code></pre>
 
-  <form method="POST" action="">
+  <form method="POST" action="" id="rating">
     <fieldset>
       <legend>This message exhibits...</legend>
 
@@ -28,8 +31,14 @@
         {% for id, name in tags.items() %}
           <li class="no-margin"><label class="choice"><input type="checkbox" name="tag-{{ id }}"> {{ name }}</label></li>
         {% endfor %}
+        <li class="no-margin">or</li>
+        <li class="no-margin"><label class="choice"><input id="none" type="checkbox" name="none"> None of the above</label></li>
       </ul>
     </fieldset>
-    <button type="submit">Continue</button>
+
+    <div class="action-bar">
+      <span class="action-bar__spacer"></span>
+      <button id="submit" class="action-bar__confirm" type="submit">Confirm rating and continue ➡️</button>
+    </div>
   </form>
 {% endblock %}

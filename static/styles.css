@@ -48,6 +48,22 @@
     color: var(--nc-lk-tx, white);
     background: var(--nc-lk-2, #0070F3);
 }
+.choice--disabled {
+  opacity: .8;
+  cursor: not-allowed;
+}
+.choice--disabled:hover {
+  background-color: var(--nc-bg-3);
+}
+
+.action-bar {
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: space-between;
+}
+
+.action-bar__confirm { flex: 0 }
+.action-bar__spacer { flex: 1 }
 
 /* Utility classes */
 
