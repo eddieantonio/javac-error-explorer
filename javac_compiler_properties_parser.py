@@ -413,6 +413,18 @@ def parse_annotation(lines: Sequence[str]) -> dict[int, Placeholder]:
         logger.info("not interpreting this as an annotation: %s", lines)
         return {}
 
+    # Parse long placeholder comments:
+    # e.g., # {0} - message
+    long_placeholder_comments = {}
+    for line in lines[:-1]:
+        if m := re.match(r"#\s+{(\d+)}\s+-\s+(.+)$", line):
+            str_index, comment = m.groups()
+            index = int(str_index)
+            long_placeholder_comments[index] = comment
+
+    # Parse the actual placeholder types themselves,
+    # e.g.,
+    #     0: symbol, 1: string (expected version)
     types = {}
     for declaration in annotation_line.split(","):
         declaration = declaration.strip()
@@ -431,11 +443,11 @@ def parse_annotation(lines: Sequence[str]) -> dict[int, Placeholder]:
         # Extract the type and comment from the description
         # e.g., string (found version) -> "string", "found version"
         type_str, paren, comment_str = description.partition("(")
+        type_str = type_str.strip()
         if paren == "(":
             comment = comment_str.rstrip().removesuffix(")")
         else:
-            comment = None
-        type_str = type_str.strip()
+            comment = long_placeholder_comments.get(index)
 
         if index in types:
             # Placeholder declared more than once;

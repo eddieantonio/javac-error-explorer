@@ -12,7 +12,7 @@ from javac_compiler_properties_parser import parse_messages_from_lines
 # - a message with placeholders, but no placeholder declarations
 # - a message with a UTF-16 escape
 # - placeholders with comments (in parentheses)
-N_EXAMPLES = 8
+N_EXAMPLES = 9
 EXAMPLE = r"""
 # 0: symbol kind, 1: name, 2: list of type or message segment, 3: list of type or message segment, 4: symbol kind, 5: type, 6: message segment
 compiler.misc.cant.apply.symbol=\
@@ -47,6 +47,12 @@ compiler.err.error=\
 compiler.err.feature.not.supported.in.source=\
    {0} is not supported in -source {1}\n\
     (use -source {2} or higher to enable {0})
+
+# {0} - package in which the invisible class is declared
+# {1} - module in which {0} is declared
+# 0: symbol, 1: symbol
+compiler.misc.not.def.access.does.not.read.from.unnamed=\
+    package {0} is declared in module {1}, which is not in the module graph
 """
 
 
@@ -100,3 +106,12 @@ def test_kitchen_sink() -> None:
     assert m.placeholders[1].comment == "found version"
     assert m.placeholders[2].type_ == "string"
     assert m.placeholders[2].comment == "expected version"
+
+    # Test that comments are parsed from above the annotation.
+    m = name_to_message["compiler.misc.not.def.access.does.not.read.from.unnamed"]
+    assert m.placeholders[0].type_ == "symbol"
+    assert (
+        m.placeholders[0].comment == "package in which the invisible class is declared"
+    )
+    assert m.placeholders[1].type_ == "symbol"
+    assert m.placeholders[1].comment == "module in which {0} is declared"
