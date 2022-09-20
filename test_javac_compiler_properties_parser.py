@@ -31,6 +31,8 @@ compiler.err.this.as.identifier=\
     as of release 8, ''this'' is allowed as the parameter name for the receiver type only\n\
     which has to be the first parameter, and cannot be a lambda parameter
 
+compile.misc.fake.message=syntax error
+
 compiler.misc.bad.const.pool.tag=\
     bad constant pool tag: {0}
 
@@ -43,9 +45,9 @@ compiler.err.error=\
 
 def test_kitchen_sink() -> None:
     messages = parse_messages_from_lines(EXAMPLE.splitlines(), "<example>")
-    assert len(messages) == 6
+    assert len(messages) == 7
     name_to_message = {m.name: m for m in messages}
-    assert len(name_to_message) == 6
+    assert len(name_to_message) == 7
 
     # Test the simple message can be converted to a string:
     m = name_to_message["compiler.misc.anonymous"]
@@ -78,3 +80,7 @@ def test_kitchen_sink() -> None:
     m = name_to_message["compiler.misc.bad.const.pool.tag"]
     assert m.n_placeholders == 1
     assert m.placeholders[0].type_ is None
+
+    # Test a message that does not spill on to the next line (fake)
+    m = name_to_message["compile.misc.fake.message"]
+    assert str(m) == "syntax error"
