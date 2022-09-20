@@ -3,9 +3,23 @@
 {% block title %}Rating {{ message.name }} | javac message explorer{% endblock %}
 
 {% block main %}
+
   <h2>Rate this error message!</h2>
 
-  <pre><code>{{ message.text }}</code></pre>
+  <pre><code>
+  {%- for item in components -%}
+    {%- if item.is_text -%}
+      {{ item.text }}
+    {%- else -%}
+      <span class="placeholder"
+            data-index={{ item.index }}
+            data-type="{{ symbol }}"
+            {% if item.comment %}title="{{ item.comment }}"{% endif %}
+            >{{ item.type|default(item.index, true) }}</span>
+    {%- endif -%}
+  {%- endfor -%}
+  </code></pre>
+
   <form method="POST" action="">
     <fieldset>
       <legend>This message exhibits...</legend>

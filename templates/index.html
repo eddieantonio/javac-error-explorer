@@ -20,7 +20,8 @@
   <ul>
     {% for m in messages %}
       <li>
-        <a href="{{ url_for('message_detail', message_id=m.name) }}">
+        <a href="{{ url_for('message_detail', message_id=m.name) }}"
+           class="no-underline">
           <span class="tag tag--{{ m.level }}">{{ m.level }}</span>
           <code>{{ m.text }}</code>
         </a>

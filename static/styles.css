@@ -18,6 +18,25 @@
 .tag--misc { color: white; background-color: grey; }
 .tag--note { color: black; background-color: var(--nc-ac-1, cyan); }
 
+.placeholder {
+    display: inline-block;
+    padding-inline: .4rem;
+
+    font-family: var(--nc-font-sans);
+
+    background-color: var(--nc-lk-2);
+
+    border: 1px dotted var(--nc-ac-tx);
+    border-radius: 4px;
+}
+
+/* When a placeholder has a comment associated with it, it will have a hover-over tooltip. */
+.placeholder[title] {
+    text-decoration: underline;
+    text-decoration-style: dotted;
+    cursor: help;
+}
+
 .choice {
     display: block;
     padding-inline-start: 1rem;
@@ -35,3 +54,4 @@
 .no-bullet { list-style: none }
 .no-padding { padding: 0 }
 .no-margin { margin: 0 }
+.no-underline { text-decoration: none }
