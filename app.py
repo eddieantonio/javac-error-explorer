@@ -51,8 +51,18 @@ def message_detail(message_id: str):
                 }
             )
 
+    # This is an attrocious way to do it 🙈
+    query = "+".join(
+        " ".join(item for item in message.components if isinstance(item, str)).split()
+    )
+    stack_overflow_search = f"https://stackoverflow.com/search?q=%5Bjava%5D+{query}"
+
     return render_template(
-        "message-detail.html", message=message, tags=tags, components=components
+        "message-detail.html",
+        message=message,
+        tags=tags,
+        components=components,
+        stack_overflow_search=stack_overflow_search,
     )
 
 

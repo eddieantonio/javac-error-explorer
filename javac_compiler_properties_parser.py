@@ -63,6 +63,24 @@ class Message:
         return level
 
     @property
+    def resource_name(self) -> str | None:
+        "The name within the enum in com.sun.tools.javac.resources.CompilerProperties"
+        namespace, level, *words = self.name.split(".")
+        assert namespace == "compiler"
+
+        class_name = {
+            "err": "Errors",
+            "warn": "Warnings",
+            "misc": "Fragments",
+            "note": "Notes",
+        }.get(level)
+        assert class_name is not None
+
+        member_name = "".join(w.title() for w in words)
+
+        return f"{class_name}.{member_name}"
+
+    @property
     def placeholders(self) -> Sequence[Placeholder]:
         "A sequence of all of the unique placeholders in the message, in index order."
         unique_placeholders = {
