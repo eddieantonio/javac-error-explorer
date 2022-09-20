@@ -1,18 +1,16 @@
+"""
+"""
+
 import inspect
 import re
 import sys
 from dataclasses import dataclass
 from pathlib import Path
 from random import sample
-from typing import Sequence
+from typing import Iterable, Sequence
+from xml.sax.handler import property_declaration_handler
 
 from rich import print
-
-HERE = Path(__file__).resolve().parent
-properties_file = HERE / "compiler.properties"
-assert properties_file.exists()
-
-properties_text = properties_file.read_text(encoding="UTF-8")
 
 
 @dataclass(frozen=True)
@@ -42,6 +40,17 @@ class Message:
     @property
     def level(self) -> str:
         return self.name.split(".")[1]
+
+    @property
+    def placeholders(self) -> Sequence[Placeholder]:
+        unique_placeholders = {item.index: item for item in self.components if isinstance(item, Placeholder)}
+        # Placeholders are stored by their position in the message, but we want
+        # the placeholders to be accessible by their logical index.
+        return sorted(unique_placeholders.values(), key=lambda p: p.index)
+    
+    @property
+    def n_placeholders(self) -> int:
+        return len(self.placeholders)
 
     @property
     def is_error_message(self) -> bool:
@@ -74,7 +83,7 @@ class ParseError(Exception):
 
 # Parse some messages!
 class Parser:
-    def __init__(self, lines: Sequence[str], *, filename=None):
+    def __init__(self, lines: Iterable[str], *, filename=None):
         self.filename = filename or "<input>"
         self.lines = enumerate(lines, start=1)
         self.line_no, self.raw_line = next(self.lines)
@@ -149,7 +158,7 @@ class Parser:
             self.next_line()
             value = self.value()
         else:
-            value = [rest]
+            raise self.parse_error("Single line property parsing not implemented")
 
         self.messages.append(Message(name=name, components=self.make_components(value)))
         self.current_comment_lines = []
@@ -249,6 +258,21 @@ class Parser:
         )
 
 
+###################################### Public API ######################################
+
+
+def parse_messages_from_lines(lines: Iterable[str], filename=None) -> Sequence[Message]:
+    """
+    Given a sequence of lines from a file like `compiler.properties`, parses the file
+    including "stylized comments" that provide types for the placeholders.
+    """
+    p = Parser(lines, filename=filename)
+    return p.parse()
+
+
+################################### Helper functions ###################################
+
+
 def parse_annotation(lines: Sequence[str]) -> dict[int, Placeholder]:
     """
     Parse annotation comments. These are things that look like this:
@@ -311,16 +335,26 @@ def warning(*args, **kwargs):
 
 
 if __name__ == "__main__":
-    p = Parser(properties_text.splitlines(), filename=properties_file.name)
-    p.parse()
+    # Pares the `compiler.properties` file that is in the same directory as this source
+    # file.
+    HERE = Path(__file__).resolve().parent
+    properties_path = HERE / "compiler.properties"
+    assert properties_path.exists()
+
+    with properties_path.open("r", encoding="UTF-8") as properties_file:
+        messages = parse_messages_from_lines(
+            properties_file, filename=properties_path.name
+        )
+
     print()
-    for message in p.messages:
+    for message in messages:
         if not message.is_error_message:
+            # Only print error messages.
             continue
         print(f"[bold]{message.name}[/bold]:")
         for line in str(message).splitlines():
             print(f"\t{line}")
 
-    n_errors = sum(m.is_error_message for m in p.messages)
-    total = len(p.messages)
+    n_errors = sum(m.is_error_message for m in messages)
+    total = len(messages)
     print(f"[bold]{n_errors}[/bold] error messages ({total} total)")
