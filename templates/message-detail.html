@@ -1,34 +1,21 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Rating {{ message.name }} | javac message explorer</title>
-    <link rel="stylesheet" href="https://fonts.xz.style/serve/inter.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@exampledev/new.css@1.1.2/new.min.css">
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>☕️</text></svg>">
-</head>
-<body>
-    <header>
-        <h1><a href="{{ url_for('index') }}">Java message explorer</a></h1>
-    </header>
+{% extends "base.html" %}
 
-    <main>
-        <h2>Rate this error message!</h2>
+{% block title %}Rating {{ message.name }} | javac message explorer{% endblock %}
 
-        <pre><code>{{ message.text }}</code></pre>
-        <form method="POST" action="">
-            <fieldset>
-                <legend>Contains</legend>
-                
-                <ul class="no-bullet no-padding">
-                    {% for id, name in tags.items() %}
-                        <li class="no-margin"><label class="choice"><input type="checkbox" name="tag-{{ id }}"> {{ name }}</label></li>
-                    {% endfor %}
-                </ul>
-            </fieldset>
-            <button type="submit">Continue</button>
-        </form>
-    </main>
-</body>
-</html>
+{% block main %}
+  <h2>Rate this error message!</h2>
+
+  <pre><code>{{ message.text }}</code></pre>
+  <form method="POST" action="">
+    <fieldset>
+      <legend>This message exhibits...</legend>
+
+      <ul class="no-bullet no-padding">
+        {% for id, name in tags.items() %}
+          <li class="no-margin"><label class="choice"><input type="checkbox" name="tag-{{ id }}"> {{ name }}</label></li>
+        {% endfor %}
+      </ul>
+    </fieldset>
+    <button type="submit">Continue</button>
+  </form>
+{% endblock %}
