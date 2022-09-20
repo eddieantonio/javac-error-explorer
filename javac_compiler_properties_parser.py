@@ -51,6 +51,18 @@ class Message:
     components: Sequence[Placeholder | str]
 
     @property
+    def text(self) -> str:
+        "A plain representation of the message template"
+        return str(self)
+
+    @property
+    def level(self) -> str:
+        "The 'message level' of the error"
+        namespace, level, *rest = self.name.split(".")
+        assert namespace == "compiler"
+        return level
+
+    @property
     def placeholders(self) -> Sequence[Placeholder]:
         "A sequence of all of the unique placeholders in the message, in index order."
         unique_placeholders = {

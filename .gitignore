@@ -4,5 +4,8 @@ __pycache__/
 # Databases
 *.sqlite3
 
+# Configuration
+.env
+
 # Editor files
 .vscode/

@@ -4,7 +4,7 @@ Access to any and all data.
 
 import hashlib
 from functools import cache
-from typing import Sequence
+from typing import Mapping, Sequence
 
 from constants import *
 from javac_compiler_properties_parser import Message, parse_messages_from_path
@@ -59,7 +59,7 @@ def init_db(conn) -> None:
         conn.executemany("INSERT INTO rater(name) VALUES (?)", [("eddie",), ("brett",)])
 
         def generate_message_data():
-            for message in messages():
+            for message in message_list():
                 message_id = message.name
                 level = message_id.split(".")[1]
                 text = str(message)
@@ -91,5 +91,12 @@ def verify_sha(conn) -> None:
 
 
 @cache
-def messages() -> Sequence[Message]:
-    return parse_messages_from_path(PROPERTIES_FILE)
+def message_list() -> list[Message]:
+    "Return all the parsed messages as one long list"
+    return list(messages().values())
+
+
+@cache
+def messages() -> Mapping[str, Message]:
+    "Return all the messages as a mapping from its id -> message"
+    return {m.name: m for m in parse_messages_from_path(PROPERTIES_FILE)}

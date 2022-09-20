@@ -1,28 +1,37 @@
-import sqlite3
-from collections import Counter
-
+from flask import Flask, render_template
 from rich import print
 
-from constants import *
-from data_layer import verify_sha
+import constants
+from data_layer import messages
+
+app = Flask(__name__)
 
 
-def print_all_placeholder_types():
-    placeholder_types: Counter[str] = Counter()
-
-    for message in messages():
-        if not message.is_error_message:
-            continue
-
-        for placeholder in message.placeholders:
-            if placeholder.type_ is None:
-                continue
-            placeholder_types[placeholder.type_] += 1
-
-    print(placeholder_types.most_common())
+@app.route("/")
+def index():
+    return render_template("index.html", messages=messages().values())
 
 
-if __name__ == "__main__":
-    conn = sqlite3.connect(DATABASE_PATH)
-    # init_db(conn)
-    verify_sha(conn)
+@app.route("/rate/<message_id>")
+def message_detail(message_id: str):
+    message = messages().get(message_id)
+    if message is None:
+        return "<p>Message not found. <a href='/'>Go back home</a>", 404
+
+    tags = {
+        "soup": "Token Soup",
+        "suggestion": "Implicit Suggestion",
+        "cascade": "Cascading Error",
+        "compilerspeak": "Compiler-speak",
+        "conflict": "One-sided conflict",
+        "illegal": "Illegal Vocabulary",
+    }
+
+    return render_template("message-detail.html", message=message, tags=tags)
+
+
+# Place all globals in the Jinja environment
+for name in dir(constants):
+    if not name[:1].isupper():
+        continue
+    app.jinja_env.globals[name] = getattr(constants, name)

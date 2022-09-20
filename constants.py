@@ -3,9 +3,10 @@ from pathlib import Path
 # The directory that this file is contained within
 HERE = Path(__file__).resolve().parent
 
+# Where to find the database
 DATABASE_PATH = HERE / "ratings.sqlite3"
 
-# compiler.properties file and metadata.
+# compiler.properties file and its metadata:
 PROPERTIES_FILE = HERE / "compiler.properties"
 PROPERTIES_JDK_VERSION = "18+37"
 PROPERTIES_SHA_256 = "afe2fe79779178c70dc8e68a67cb0748fbd5a7b3adb47567c1c6d26d764a67ef"
