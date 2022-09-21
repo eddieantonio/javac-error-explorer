@@ -147,10 +147,9 @@ class Parser:
     For details about the compiler.properties file, consult its own comments:
 
      - https://github.com/openjdk/jdk/blob/master/src/jdk.compiler/share/classes/com/sun/tools/javac/resources/compiler.properties
+
+    For details about .properties files in general, see:
      - https://docs.oracle.com/javase/10/docs/api/java/util/Properties.html#load(java.io.Reader)
-
-    It's supposed to parseable as an ordinary Java .properties file:
-
      - https://en.wikipedia.org/wiki/.properties
 
     ...however, the (sometimes) meaningful comments means it's better to parse it as its

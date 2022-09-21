@@ -1,9 +1,9 @@
 [tool.poetry]
 name = "javac-error-explorer"
 version = "0.1.0"
-description = "Parses Javac errors"
+description = "Explore Javac error messages (and more)"
 authors = ["Eddie Antonio Santos <eddie.santos@ucdconnect.ie>"]
-license = "MIT"
+license = "GPL-3.0-or-later"
 
 [tool.poetry.dependencies]
 python = "^3.10"
