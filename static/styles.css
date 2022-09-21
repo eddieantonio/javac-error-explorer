@@ -24,9 +24,10 @@
 
     font-family: var(--nc-font-sans);
 
+    color: var(--nc-lk-tx);
     background-color: var(--nc-lk-2);
 
-    border: 1px dotted var(--nc-ac-tx);
+    border: 1px dotted var(--nc-lk-tx);
     border-radius: 4px;
 }
 
