@@ -18,6 +18,12 @@
 .tag--misc { color: white; background-color: grey; }
 .tag--note { color: black; background-color: var(--nc-ac-1, cyan); }
 
+.message-display {
+  /* Keeps the height from "jumping" when display messages with and without
+   * placeholders --- placeholders make the box 1.5 rem tall. */
+  min-height: 1.5rem;
+}
+
 .placeholder {
     display: inline-block;
     padding-inline: .4rem;
@@ -66,9 +72,25 @@
 .action-bar__confirm { flex: 0 }
 .action-bar__spacer { flex: 1 }
 
+.bottom-panel {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+
+  padding-block: 1rem;
+
+  background-color: var(--nc-bg-2);
+}
+
 /* Utility classes */
 
 .no-bullet { list-style: none }
 .no-padding { padding: 0 }
 .no-margin { margin: 0 }
 .no-underline { text-decoration: none }
+
+.content-width {
+  max-width: 750px;
+  margin-inline: auto;
+}

@@ -6,10 +6,12 @@
 {% endblock %}
 
 {% block main %}
+  <p>
+    Viewing <span class="tag tag--{{ message.level }}">{{ message.level }}</span>
+    <code>{{ message.name }}</code>:
+  </p>
 
-  <h2>Rate this error message!</h2>
-
-  <pre><code>
+  <pre class="message-display"><code>
   {%- for item in components -%}
     {%- if item.is_text -%}
       {{ item.text }}
@@ -45,4 +47,16 @@
       <button id="submit" class="action-bar__confirm" type="submit">Confirm rating and continue ➡️</button>
     </div>
   </form>
+
+  <footer class="bottom-panel">
+    <div class="action-bar content-width">
+      <a href="{{ url_for('previous_message', message_id=message.name) }}">
+        <button>Previous message</button>
+      </a>
+
+      <a href="{{ url_for('next_message', message_id=message.name) }}">
+        <button>Next message</button>
+      </a>
+    </div>
+  </footer>
 {% endblock %}
