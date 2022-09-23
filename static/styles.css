@@ -80,7 +80,11 @@
 
   padding-block: 1rem;
 
-  background-color: var(--nc-bg-2);
+  background-color: var(--nc-bg-3);
+}
+
+.make-room-for-bottom-panel {
+  margin-bottom: 3rem;
 }
 
 /* Utility classes */

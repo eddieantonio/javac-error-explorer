@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>{% block title %}javac message explorer{% endblock %}</title>
+    <title>{% block title %}Java Message Explorer{% endblock %}</title>
     <link rel="stylesheet" href="https://fonts.xz.style/serve/inter.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@exampledev/new.css@1.1.2/new.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
@@ -15,7 +15,7 @@
         <h1><a href="{{ url_for('index') }}">Java message explorer</a></h1>
     </header>
 
-    <main>
+    <main class="make-room-for-bottom-panel">
         {% block main %}
         <details>
             <summary> About these messages </summary>

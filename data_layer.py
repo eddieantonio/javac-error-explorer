@@ -1,5 +1,7 @@
 """
 Access to any and all data.
+
+See: https://flask.palletsprojects.com/en/2.2.x/patterns/sqlite3/
 """
 
 import hashlib

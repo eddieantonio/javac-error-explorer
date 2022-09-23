@@ -1,14 +1,14 @@
 {% extends "base.html" %}
 
-{% block title %}Rating {{ message.name }} | javac message explorer{% endblock %}
+{% block title %}{{ message }} | Java Message Explorer{% endblock %}
 {% block head %}
   <script src="{{ url_for('static', filename="rate.js") }}"></script>
 {% endblock %}
 
 {% block main %}
   <p>
-    Viewing <span class="tag tag--{{ message.level }}">{{ message.level }}</span>
-    <code>{{ message.name }}</code>:
+    <span class="tag tag--{{ message.level }}">{{ message.level }}</span>
+    <code>{{ message.name }}</code>
   </p>
 
   <pre class="message-display"><code>
