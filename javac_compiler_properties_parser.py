@@ -129,7 +129,7 @@ class ParseError(Exception):
 
 
 class Parser:
-    """
+    r"""
     A very ad hoc parsing algorithm for a very ad hoc file format.
 
     This vaguely implements a recursive descent parser, which operates on a line-by-line
@@ -151,6 +151,9 @@ class Parser:
     For details about .properties files in general, see:
      - https://docs.oracle.com/javase/10/docs/api/java/util/Properties.html#load(java.io.Reader)
      - https://en.wikipedia.org/wiki/.properties
+
+    Note: according to the docs of `Properties.load(Reader)`, this code is DEFINITELY
+    wrong! But it works well enough for now ¯\_(ツ)_/¯
 
     ...however, the (sometimes) meaningful comments means it's better to parse it as its
     own special format.
@@ -287,6 +290,7 @@ class Parser:
                         return '"'
                     case _:
                         full_escape = match_[0]
+                        # According to the spec, this is actually not an error:
                         raise self.parse_error(f"Unknown escape: {full_escape}")
 
             chunk = re.sub(r"\\(.)", replace_escape, chunk)
@@ -298,7 +302,7 @@ class Parser:
             except StopIteration:
                 break
 
-        return "".join(value_chunks)
+        return "".join(value_chunks).replace("''", "'")
 
     def make_components(self, message_text: str) -> Sequence[str | Placeholder]:
         """

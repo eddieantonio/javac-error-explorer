@@ -12,7 +12,6 @@ from javac_compiler_properties_parser import parse_messages_from_lines
 # - a message with placeholders, but no placeholder declarations
 # - a message with a UTF-16 escape
 # - placeholders with comments (in parentheses)
-N_EXAMPLES = 9
 EXAMPLE = r"""
 # 0: symbol kind, 1: name, 2: list of type or message segment, 3: list of type or message segment, 4: symbol kind, 5: type, 6: message segment
 compiler.misc.cant.apply.symbol=\
@@ -53,7 +52,15 @@ compiler.err.feature.not.supported.in.source=\
 # 0: symbol, 1: symbol
 compiler.misc.not.def.access.does.not.read.from.unnamed=\
     package {0} is declared in module {1}, which is not in the module graph
+
+compiler.err.else.without.if=\
+    ''else'' without ''if''
+
+# 0: symbol
+compiler.err.icls.cant.have.static.decl.fake=\
+    modifier \''static\'' is only allowed in constant variable declarations
 """
+N_EXAMPLES = 11
 
 
 def test_kitchen_sink() -> None:
@@ -115,3 +122,11 @@ def test_kitchen_sink() -> None:
     )
     assert m.placeholders[1].type_ == "symbol"
     assert m.placeholders[1].comment == "module in which {0} is declared"
+
+    # Test that single quotes are interpreted correctly
+    m = name_to_message["compiler.err.else.without.if"]
+    assert str(m) == "'else' without 'if'"
+    m = name_to_message["compiler.err.icls.cant.have.static.decl.fake"]
+    assert (
+        str(m) == "modifier 'static' is only allowed in constant variable declarations"
+    )
